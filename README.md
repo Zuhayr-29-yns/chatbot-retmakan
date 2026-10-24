@@ -1,89 +1,138 @@
-# 🍽️ Chatbot RetMakan
 
-Chatbot RetMakan adalah aplikasi rekomendasi makanan berbasis AI yang membantu pengguna menemukan pilihan makanan sesuai preferensi dan anggaran, serta mencari penjual makanan terdekat berdasarkan lokasi GPS.
+# Chatbot RetMakan
+
+Chatbot RetMakan adalah aplikasi rekomendasi makanan berbasis AI yang membantu pengguna mencari rekomendasi makanan dan penjual berdasarkan kebutuhan pengguna. Aplikasi ini menggunakan model bahasa lokal melalui Ollama, database SQLite, serta fitur pencarian penjual berdasarkan lokasi pengguna.
 
 ## ✨ Fitur Utama
 
-- Chatbot AI yang memproses pesan pengguna dalam bahasa alami.
-- Rekomendasi makanan berdasarkan jenis, rasa, waktu makan, anggaran, tingkat kepedasan, dan metode memasak.
-- Pencarian penjual makanan berdasarkan lokasi GPS.
-- Filter jarak pencarian 5 km, 10 km, 25 km, dan 50 km.
-- Pencarian menu berdasarkan nama makanan dan anggaran.
-- Informasi penjual, alamat, harga menu, jarak, dan tautan rute Google Maps.
+- Chatbot AI untuk membantu pengguna memperoleh rekomendasi makanan.
+- Rekomendasi makanan berdasarkan kebutuhan pengguna.
+- Pencarian menu makanan yang tersedia pada database.
+- Pencarian penjual makanan berdasarkan lokasi pengguna.
+- Pencarian penjual terdekat berdasarkan radius jarak.
+- Filter menu berdasarkan harga maksimum.
+- Pemanfaatan GPS melalui Browser Geolocation API.
+- Integrasi Google Maps Directions URL untuk membantu navigasi menuju penjual.
+- Database SQLite untuk menyimpan data makanan, penjual, dan menu.
+- Model AI lokal menggunakan Ollama dengan model `qwen2.5:3b`.
 
-## 🛠️ Teknologi
+## 🛠️ Teknologi yang Digunakan
 
-- Python
-- FastAPI
-- Ollama dengan model `qwen2.5:3b`
-- SQLite
-- HTML, CSS, dan JavaScript
-- Browser Geolocation API
-- Google Maps Directions URL
+- **Bahasa pemrograman:** Python
+- **Framework backend:** FastAPI
+- **Database:** SQLite
+- **Model AI:** Ollama `qwen2.5:3b`
+- **Antarmuka:** HTML
+- **Lokasi pengguna:** Browser Geolocation API
+- **Navigasi:** Google Maps Directions URL
+- **Server aplikasi:** Uvicorn
 
 ## 📋 Persyaratan
 
-- Python yang kompatibel dengan dependensi proyek.
-- Ollama terpasang di komputer.
-- Model `qwen2.5:3b` tersedia di Ollama.
-- Browser modern untuk mengakses antarmuka dan fitur GPS.
+Sebelum menjalankan aplikasi, pastikan perangkat sudah memiliki:
+
+- Python yang kompatibel dengan dependensi pada `requirements.txt`.
+- Git untuk mengunduh repositori.
+- Ollama yang sudah terinstal dan dapat dijalankan.
+- Model AI `qwen2.5:3b`.
+- Browser modern yang mendukung JavaScript dan Geolocation API.
 
 ## 🚀 Instalasi dan Menjalankan Aplikasi
 
-### 1. Clone repositori
+### 1. Clone Repository
+
+Buka CMD atau terminal, lalu jalankan:
 
 ```bash
-git clone https://github.com/USERNAME/chatbot-retmakan.git
+git clone https://github.com/Zuhayr-29-yns/chatbot-retmakan.git
 cd chatbot-retmakan
 ```
 
-Ganti `USERNAME` dengan nama pengguna GitHub pemilik repositori.
+### 2. Buat Virtual Environment
 
-### 2. Buat virtual environment
+Jalankan perintah berikut untuk membuat lingkungan Python terpisah:
 
-Windows:
-
-```cmd
-python -m venv .venv
-.venv\Scripts\activate
+```bash
+py -m venv .venv
 ```
 
-### 3. Instal dependensi
+### 3. Instal Dependensi
 
-```cmd
-python -m pip install -r requirements.txt
+Instal seluruh pustaka yang dibutuhkan oleh aplikasi:
+
+```bash
+.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### 4. Siapkan Ollama
+### 4. Siapkan Model AI
 
-Pastikan Ollama sudah terpasang dan model tersedia:
+Pastikan Ollama sudah terinstal dan berjalan. Kemudian, unduh model AI yang digunakan aplikasi:
 
-```cmd
+```bash
 ollama pull qwen2.5:3b
 ```
 
-Pastikan layanan Ollama berjalan sebelum menggunakan fitur chatbot.
+Model tersebut dijalankan secara lokal melalui Ollama.
 
-### 5. Jalankan aplikasi
+### 5. Siapkan Database dan Data Demo
 
-```cmd
-uvicorn app.main:app --reload
+Jalankan skrip inisialisasi database dan data demo:
+
+```bash
+.venv\Scripts\python.exe isi_data_demo.py
 ```
 
-### 6. Buka aplikasi
+Skrip ini menyiapkan tabel database serta data demo penjual dan menu untuk kebutuhan pengujian. Data yang sudah ada tidak sengaja dihapus oleh skrip tersebut.
 
-- Antarmuka RetMakan: http://127.0.0.1:8000/app
-- Dokumentasi API: http://127.0.0.1:8000/docs
-- Health check: http://127.0.0.1:8000/health
+**Catatan:** Data penjual, lokasi, menu, dan harga demo digunakan untuk pengujian. Verifikasi terlebih dahulu sebelum menggunakannya sebagai data aktual.
+
+### 6. Jalankan Aplikasi
+
+Jalankan server FastAPI menggunakan Uvicorn:
+
+```bash
+.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+Setelah server berjalan, biarkan terminal tetap terbuka selama aplikasi digunakan.
+
+### 7. Buka Aplikasi
+
+Akses alamat berikut melalui browser:
+
+- **Antarmuka aplikasi:** http://127.0.0.1:8000/app
+- **Dokumentasi API:** http://127.0.0.1:8000/docs
+- **Health check:** http://127.0.0.1:8000/health
 
 ## 📍 Penggunaan GPS
 
-Izinkan akses lokasi melalui browser untuk mencari penjual di sekitar pengguna. Hasil pencarian bergantung pada data penjual, koordinat, menu, dan harga yang tersedia di database.
+Untuk menggunakan fitur pencarian penjual terdekat:
+
+1. Buka aplikasi melalui browser.
+2. Aktifkan fitur pencarian berdasarkan lokasi jika tersedia.
+3. Izinkan browser mengakses lokasi perangkat.
+4. Gunakan fitur pencarian penjual terdekat sesuai kebutuhan.
+5. Atur radius pencarian apabila fitur tersebut tersedia.
+6. Gunakan tautan navigasi untuk membuka petunjuk arah menuju penjual.
+
+Hasil pencarian bergantung pada ketersediaan data penjual, koordinat lokasi, menu, harga, serta izin akses lokasi dari browser.
+
+## 🗄️ Database
+
+Chatbot RetMakan menggunakan SQLite sebagai penyimpanan data lokal.
+
+Database digunakan untuk menyimpan data yang diperlukan oleh aplikasi, termasuk:
+
+- Data makanan.
+- Data penjual.
+- Data menu penjual.
+
+File database lokal tidak disertakan dalam repository. Jalankan skrip `isi_data_demo.py` untuk menyiapkan database dan data demo sebelum mencoba fitur pencarian penjual dan menu.
 
 ## 📂 Struktur Proyek
 
 ```text
-FoodMateAI/
+Chatbot RetMakan/
 ├── app/
 │   ├── main.py
 │   ├── database.py
@@ -93,6 +142,8 @@ FoodMateAI/
 │   └── templates/
 │       └── index.html
 ├── data/
+├── isi_penjual.py
+├── isi_data_demo.py
 ├── requirements.txt
 ├── .gitignore
 └── README.md
@@ -100,11 +151,16 @@ FoodMateAI/
 
 ## ⚠️ Catatan
 
-- Database lokal tidak disertakan dalam repositori. Siapkan atau inisialisasi database sesuai implementasi aplikasi sebelum menggunakan fitur penjual.
-- Data penjual dan harga perlu diisi dengan data yang benar.
-- Akses GPS memerlukan izin pengguna dan konteks browser yang mendukung Geolocation API.
-- Model AI dijalankan secara lokal melalui Ollama.
+- Pastikan dependensi sudah terinstal sebelum menjalankan aplikasi.
+- Pastikan layanan Ollama berjalan ketika fitur chatbot AI digunakan.
+- Database SQLite lokal tidak disertakan dalam repository.
+- Data demo penjual, koordinat, menu, dan harga perlu diverifikasi sebelum dianggap sebagai data aktual.
+- Fitur GPS memerlukan izin pengguna dan dukungan Geolocation API pada browser.
+- Hasil pencarian penjual terdekat bergantung pada data lokasi yang tersedia.
+- Google Maps digunakan melalui tautan navigasi; konfigurasi tambahan mungkin diperlukan jika implementasi aplikasi berubah.
 
-## 🎓 Tujuan Proyek
+## 👨‍💻 Pengembang
 
-Proyek ini dibuat sebagai implementasi chatbot berbasis AI untuk pelatihan, dengan use case rekomendasi makanan dan integrasi pencarian penjual berdasarkan lokasi.
+**Zuhayr-29-yns**
+
+Repository GitHub: https://github.com/Zuhayr-29-yns/chatbot-retmakan
