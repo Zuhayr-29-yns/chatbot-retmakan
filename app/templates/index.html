@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot RetMakan</title>
+
+    <style>
+      .seller-search {
+        margin: 16px 0;
+      }
+
+      .seller-search .muted {
+        margin-top: 6px;
+      }
+
+      .seller-search input {
+        width: 100%;
+      }
+      .seller-card h3 {
+        margin: 0 0 12px;
+        line-height: 1.4;
+      }
+
+      .seller-card p {
+        margin: 8px 0;
+        line-height: 1.6;
+      }
+
+      .seller-card .seller-menu {
+        color: #4b5563;
+        font-size: 14px;
+      }
+
+      .seller-card .seller-distance {
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      .seller-card .map-link {
+        margin-top: 12px;
+      }
+
+      .seller-menu {
+        margin: 8px 0;
+        color: #4b5563;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .map-link {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 9px 14px;
+        background: #15803d;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .map-link:hover {
+        background: #166534;
+      }
+
+      .radius-control {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 12px 0 16px;
+        flex-wrap: wrap;
+      }
+
+      .radius-control label {
+        font-weight: 600;
+      }
+
+      .radius-control select {
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #222222;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      #chatMessages {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 18px 0;
+      }
+
+      .chat-user {
+        background: #245c43;
+        color: white;
+        border-radius: 12px 12px 2px 12px;
+        padding: 12px 14px;
+        max-width: 85%;
+        align-self: flex-end;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
+      .chat-bot {
+        background: #eef5ef;
+        color: #25352b;
+        border-radius: 12px 12px 12px 2px;
+        padding: 12px 14px;
+        max-width: 95%;
+        align-self: flex-start;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
+      .chat-results {
+        display: grid;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f7f4;
+        color: #25352b;
+      }
+
+      header {
+        background: #245c43;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+
+      header h1 {
+        margin: 0 0 8px;
+      }
+
+      header p {
+        margin: 0;
+        color: #e0eee5;
+      }
+
+      main {
+        max-width: 850px;
+        margin: 28px auto;
+        padding: 0 16px;
+      }
+
+      .panel {
+        background: white;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 15px #0000000a;
+      }
+
+      label {
+        display: block;
+        margin: 14px 0 6px;
+        font-weight: bold;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d6dfd8;
+        border-radius: 8px;
+        font-size: 15px;
+      }
+
+      button {
+        background: #245c43;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-top: 18px;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      .message {
+        background: #eef5ef;
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 12px;
+        white-space: pre-wrap;
+      }
+
+      .food-card {
+        border: 1px solid #dce6de;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 12px;
+      }
+
+      .price {
+        color: #245c43;
+        font-weight: bold;
+      }
+
+      .muted {
+        color: #68756c;
+        font-size: 14px;
+      }
+
+      #status {
+        margin-top: 12px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>🍽️ RetMakan</h1>
+      <p>Temukan makanan yang cocok untukmu.</p>
+    </header>
+
+    <main>
+      <section class="panel" id="chatPanel">
+        <h2>Chat dengan RetMakan AI</h2>
+        <p class="muted">Ceritakan makanan yang kamu inginkan.</p>
+
+        <div id="chatMessages" aria-live="polite">
+          <div class="message">
+            Halo! Aku RetMakan AI. Kamu ingin makan apa hari ini? Ceritakan
+            selera, waktu makan, dan anggaranmu.
+          </div>
+        </div>
+
+        <form id="chatForm">
+          <label for="chatInput">Pesan kamu</label>
+          <input
+            id="chatInput"
+            type="text"
+            placeholder="Contoh: ingin makan gurih, budget 15 ribu..."
+            maxlength="1000"
+            required
+          />
+
+          <button id="chatButton" type="submit">Kirim Pesan</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Tempat Makan Terdekat</h2>
+        <p class="muted">
+          Izinkan akses lokasi untuk mencari penjual di sekitar kamu.
+        </p>
+
+        <div class="radius-control">
+          <label for="sellerRadius">Jarak pencarian:</label>
+          <select id="sellerRadius">
+            <option value="5">5 km</option>
+            <option value="10">10 km</option>
+            <option value="25">25 km</option>
+            <option value="50" selected>50 km</option>
+          </select>
+        </div>
+
+        <div class="seller-search">
+          <label for="sellerMenuSearch">Makanan yang ingin dicari</label>
+          <input
+            id="sellerMenuSearch"
+            type="text"
+            placeholder="Contoh: soto ayam, pecel, gudeg"
+            maxlength="100"
+          />
+          <label for="sellerMaxPrice">Anggaran maksimal</label>
+          <select id="sellerMaxPrice">
+            <option value="">Semua harga</option>
+            <option value="10000">Rp10.000</option>
+            <option value="15000">Rp15.000</option>
+            <option value="20000">Rp20.000</option>
+            <option value="25000">Rp25.000</option>
+            <option value="50000">Rp50.000</option>
+          </select>
+          <p class="muted">
+            Kosongkan jika ingin melihat semua penjual dalam radius pilihan.
+          </p>
+        </div>
+
+        <button type="button" id="locationButton">
+          Cari Tempat Makan Terdekat
+        </button>
+
+        <div id="locationStatus" role="status"></div>
+        <div id="sellerResults"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Mau makan apa hari ini?</h2>
+        <p class="muted">
+          Tentukan preferensimu untuk mendapatkan rekomendasi.
+        </p>
+
+        <form id="recommendForm">
+          <label for="category">Jenis makanan</label>
+          <select id="category">
+            <option value="">Semua jenis</option>
+            <option value="nasi">Nasi</option>
+            <option value="mie">Mi</option>
+            <option value="berkuah">Makanan berkuah</option>
+            <option value="sayuran">Sayuran</option>
+            <option value="bubur">Bubur</option>
+          </select>
+
+          <label for="taste">Rasa</label>
+          <select id="taste">
+            <option value="">Semua rasa</option>
+            <option value="gurih">Gurih</option>
+          </select>
+
+          <label for="mealTime">Waktu makan</label>
+          <select id="mealTime">
+            <option value="">Bebas</option>
+            <option value="pagi">Pagi</option>
+            <option value="siang">Siang</option>
+            <option value="malam">Malam</option>
+          </select>
+
+          <label for="maxPrice">Anggaran maksimal</label>
+          <select id="maxPrice">
+            <option value="">Bebas</option>
+            <option value="10000">Rp10.000</option>
+            <option value="15000">Rp15.000</option>
+            <option value="20000">Rp20.000</option>
+            <option value="25000">Rp25.000</option>
+          </select>
+
+          <label for="maxSpicy">Kepedasan maksimal</label>
+          <select id="maxSpicy">
+            <option value="">Bebas</option>
+            <option value="0">Tidak pedas</option>
+            <option value="1">Ringan</option>
+            <option value="2">Sedang</option>
+            <option value="3">Pedas</option>
+          </select>
+
+          <button id="submitButton" type="submit">Cari Rekomendasi</button>
+        </form>
+
+        <div id="status" role="status"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Rekomendasi untukmu</h2>
+        <div id="results">
+          <p class="muted">
+            Pilih preferensi makanan, lalu tekan Cari Rekomendasi.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const chatForm = document.getElementById("chatForm");
+      const chatInput = document.getElementById("chatInput");
+      const chatMessages = document.getElementById("chatMessages");
+      const chatButton = document.getElementById("chatButton");
+
+      function addChatMessage(text, className) {
+        const message = document.createElement("div");
+        message.className = className;
+        message.textContent = text;
+        chatMessages.appendChild(message);
+        return message;
+      }
+
+      chatForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const message = chatInput.value.trim();
+
+        if (!message) return;
+
+        addChatMessage(message, "chat-user");
+        chatInput.value = "";
+        chatButton.disabled = true;
+
+        const loading = addChatMessage(
+          "RetMakan sedang mencari makanan yang cocok...",
+          "chat-bot",
+        );
+
+        try {
+          const response = await fetch("/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.detail || "Permintaan chatbot gagal.");
+          }
+
+          loading.textContent = data.message;
+
+          if (data.recommendations?.length) {
+            const resultContainer = document.createElement("div");
+            resultContainer.className = "chat-results";
+
+            data.recommendations.forEach((food) => {
+              const card = document.createElement("article");
+              card.className = "food-card";
+
+              const name = document.createElement("h3");
+              name.textContent = food.name;
+
+              const description = document.createElement("p");
+              description.textContent = food.description || "";
+
+              const price = document.createElement("p");
+              price.className = "price";
+              price.textContent =
+                "Rp" + Number(food.price).toLocaleString("id-ID");
+
+              card.append(name, description, price);
+
+              // Tombol untuk mencari penjual makanan ini
+              const sellerButton = document.createElement("button");
+              sellerButton.type = "button";
+              sellerButton.textContent = "Cari Penjual Makanan Ini";
+
+              sellerButton.addEventListener("click", function () {
+                const sellerSearch =
+                  document.getElementById("sellerMenuSearch");
+
+                // Gunakan nama makanan sebagai kata kunci pencarian
+                sellerSearch.value = food.name;
+
+                // Arahkan pengguna ke bagian pencarian penjual
+                document.getElementById("locationButton").scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+
+                sellerSearch.focus();
+              });
+
+              card.appendChild(sellerButton);
+              resultContainer.appendChild(card);
+            });
+
+            chatMessages.appendChild(resultContainer);
+          }
+        } catch (error) {
+          loading.textContent = "Maaf, terjadi kendala: " + error.message;
+        } finally {
+          chatButton.disabled = false;
+          chatInput.focus();
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+
+      const locationButton = document.getElementById("locationButton");
+      const locationStatus = document.getElementById("locationStatus");
+      const sellerResults = document.getElementById("sellerResults");
+
+      locationButton.addEventListener("click", function () {
+        if (!navigator.geolocation) {
+          locationStatus.textContent = "Browser ini tidak mendukung GPS.";
+          return;
+        }
+
+        locationButton.disabled = true;
+        locationStatus.textContent = "Meminta izin lokasi...";
+
+        navigator.geolocation.getCurrentPosition(
+          async function (position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            locationStatus.textContent = "Lokasi ditemukan. Mencari penjual...";
+
+            try {
+              const response = await fetch("/nearby-sellers", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  latitude,
+                  longitude,
+                  max_distance_km: Number(
+                    document.getElementById("sellerRadius").value,
+                  ),
+                }),
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                throw new Error(data.detail || "Pencarian gagal.");
+              }
+
+              sellerResults.replaceChildren();
+
+              const menuQuery = document
+                .getElementById("sellerMenuSearch")
+                .value.trim();
+
+              const maxPriceValue =
+                document.getElementById("sellerMaxPrice").value;
+
+              const maxPrice = maxPriceValue ? Number(maxPriceValue) : null;
+
+              sellerResults.replaceChildren();
+
+              let filteredSellers = data.sellers;
+              let matchedMenusBySeller = new Map();
+
+              if (menuQuery || maxPrice !== null) {
+                const params = new URLSearchParams();
+
+                if (menuQuery) {
+                  params.set("keyword", menuQuery);
+                }
+
+                if (maxPrice !== null) {
+                  params.set("max_price", String(maxPrice));
+                }
+
+                const menuResponse = await fetch(
+                  `/search-seller-menus?${params.toString()}`,
+                );
+
+                const menuData = await menuResponse.json();
+
+                if (!menuResponse.ok) {
+                  throw new Error(menuData.detail || "Pencarian menu gagal.");
+                }
+
+                const nearbySellerIds = new Set(
+                  data.sellers.map((seller) => Number(seller.id)),
+                );
+
+                matchedMenusBySeller = new Map();
+
+                menuData.menus.forEach((menu) => {
+                  const sellerId = Number(menu.seller_id);
+
+                  if (!nearbySellerIds.has(sellerId)) {
+                    return;
+                  }
+
+                  if (!matchedMenusBySeller.has(sellerId)) {
+                    matchedMenusBySeller.set(sellerId, []);
+                  }
+
+                  matchedMenusBySeller.get(sellerId).push(menu);
+                });
+
+                filteredSellers = data.sellers.filter((seller) =>
+                  matchedMenusBySeller.has(Number(seller.id)),
+                );
+
+                locationStatus.textContent =
+                  `${filteredSellers.length} penjual ditemukan` +
+                  ` dalam radius ${document.getElementById("sellerRadius").value} km` +
+                  (menuQuery ? ` untuk "${menuQuery}"` : "") +
+                  (maxPrice !== null
+                    ? ` dengan harga maksimal Rp${maxPrice.toLocaleString("id-ID")}`
+                    : "") +
+                  ".";
+              } else {
+                locationStatus.textContent = data.message;
+              }
+
+              if (filteredSellers.length === 0) {
+                const emptyMessage = document.createElement("p");
+                emptyMessage.className = "muted";
+                emptyMessage.textContent =
+                  "Tidak ditemukan penjual dengan menu dan anggaran tersebut dalam radius pilihan. Coba ubah kata kunci, anggaran, atau radius.";
+
+                sellerResults.appendChild(emptyMessage);
+              }
+
+              filteredSellers.forEach((seller) => {
+                const card = document.createElement("article");
+                card.className = "food-card seller-card";
+
+                const name = document.createElement("h3");
+                name.textContent = seller.name || "Penjual makanan";
+
+                const address = document.createElement("p");
+                address.textContent = seller.address || "Alamat belum tersedia";
+
+                const distance = document.createElement("p");
+                distance.className = "seller-distance";
+                distance.textContent = `Jarak garis lurus: ${Number(seller.distance_km).toFixed(2)} km`;
+
+                const menu = document.createElement("p");
+                menu.className = "seller-menu";
+
+                if (matchedMenusBySeller.has(Number(seller.id))) {
+                  const matchedMenus = matchedMenusBySeller.get(
+                    Number(seller.id),
+                  );
+
+                  menu.textContent =
+                    "Menu dan harga: " +
+                    matchedMenus
+                      .map(
+                        (item) =>
+                          `${item.menu_name} — Rp${Number(item.price).toLocaleString("id-ID")}`,
+                      )
+                      .join(", ");
+                } else {
+                  menu.textContent = seller.menu_keywords
+                    ? `Menu: ${seller.menu_keywords}`
+                    : "Menu dan harga belum tersedia";
+                }
+
+                const mapUrl =
+                  seller.map_url ||
+                  `https://www.google.com/maps/dir/?api=1&destination=${seller.latitude},${seller.longitude}`;
+
+                const mapLink = document.createElement("a");
+                mapLink.href = mapUrl;
+                mapLink.target = "_blank";
+                mapLink.rel = "noopener noreferrer";
+                mapLink.textContent = "Lihat rute di Google Maps";
+                mapLink.className = "map-link";
+
+                card.append(name, address, menu, distance, mapLink);
+                sellerResults.appendChild(card);
+              });
+            } catch (error) {
+              locationStatus.textContent =
+                "Gagal mencari penjual: " + error.message;
+            } finally {
+              locationButton.disabled = false;
+            }
+          },
+          function (error) {
+            const messages = {
+              1: "Izin lokasi ditolak. Kamu bisa mencoba kembali atau menggunakan pencarian manual nanti.",
+              2: "Lokasi belum tersedia. Periksa pengaturan lokasi perangkat.",
+              3: "Permintaan lokasi terlalu lama. Silakan coba lagi.",
+            };
+
+            locationStatus.textContent =
+              messages[error.code] || "Tidak dapat memperoleh lokasi.";
+
+            locationButton.disabled = false;
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 60000,
+          },
+        );
+      });
+    </script>
+  </body>
+</html>
