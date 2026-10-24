@@ -668,6 +668,111 @@
           },
         );
       });
+
+      // Pengujian dan penanganan form rekomendasi makanan
+      const recommendForm = document.getElementById("recommendForm");
+      const submitButton = document.getElementById("submitButton");
+      const recommendationStatus = document.getElementById("status");
+      const recommendationResults = document.getElementById("results");
+
+      recommendForm.addEventListener("submit", async function (event) {
+        // Mencegah browser melakukan submit bawaan dan kembali ke atas.
+        event.preventDefault();
+
+        submitButton.disabled = true;
+        recommendationStatus.textContent = "Sedang mencari rekomendasi...";
+        recommendationResults.replaceChildren();
+
+        try {
+          const preference = {
+            category: document.getElementById("category").value,
+            taste: document.getElementById("taste").value,
+            meal_time: document.getElementById("mealTime").value,
+            max_price: document.getElementById("maxPrice").value
+              ? Number(document.getElementById("maxPrice").value)
+              : null,
+            max_spicy: document.getElementById("maxSpicy").value
+              ? Number(document.getElementById("maxSpicy").value)
+              : null,
+          };
+
+          const response = await fetch("/recommend", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(preference),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(
+              data.detail
+                ? JSON.stringify(data.detail)
+                : "Permintaan rekomendasi gagal.",
+            );
+          }
+
+          recommendationStatus.textContent = data.message || "";
+
+          if (!data.recommendations || data.recommendations.length === 0) {
+            const emptyMessage = document.createElement("p");
+            emptyMessage.className = "muted";
+            emptyMessage.textContent =
+              data.message || "Belum ditemukan makanan yang sesuai.";
+            recommendationResults.appendChild(emptyMessage);
+          } else {
+            data.recommendations.forEach((food) => {
+              const card = document.createElement("article");
+              card.className = "food-card";
+
+              const name = document.createElement("h3");
+              name.textContent = food.name || food.nama || "Makanan";
+
+              const description = document.createElement("p");
+              description.textContent =
+                food.description || food.deskripsi || "";
+
+              card.appendChild(name);
+
+              if (description.textContent) {
+                card.appendChild(description);
+              }
+
+              if (food.price != null || food.harga != null) {
+                const price = document.createElement("p");
+                price.className = "price";
+                price.textContent =
+                  "Harga: Rp" +
+                  Number(food.price ?? food.harga).toLocaleString("id-ID");
+                card.appendChild(price);
+              }
+
+              recommendationResults.appendChild(card);
+            });
+          }
+
+          // Arahkan ke hasil agar pengguna langsung melihat rekomendasi.
+          recommendationResults.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        } catch (error) {
+          recommendationStatus.textContent =
+            "Gagal memuat rekomendasi: " + error.message;
+
+          const errorMessage = document.createElement("p");
+          errorMessage.className = "muted";
+          errorMessage.textContent =
+            "Periksa koneksi aplikasi dan detail error pada terminal server.";
+          recommendationResults.appendChild(errorMessage);
+
+          console.error("Kesalahan rekomendasi:", error);
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
     </script>
   </body>
 </html>
